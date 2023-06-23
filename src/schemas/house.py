@@ -11,6 +11,7 @@ class HouseBase(BaseModel):
 
 class House(Base, HouseBase):
     order: int
+    calculated: bool
 
     class Config:
         orm_mode = True

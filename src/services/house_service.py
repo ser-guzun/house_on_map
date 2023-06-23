@@ -1,10 +1,13 @@
 import random
 
+from anyio import sleep
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.house import House
 from src.schemas.house import HouseCreate
+
+# from time import sleep
 
 
 async def get_houses(session: AsyncSession) -> list[House]:
@@ -28,7 +31,7 @@ async def get_house_by_cad_number(
 
 async def create_house(house: HouseCreate, session: AsyncSession) -> House:
     house = House(
-        order=random.randint(0, 10),
+        order=random.randint(1, 10),
         cadastral_number=house.cadastral_number,
         longitude=house.longitude,
         latitude=house.latitude,
@@ -42,6 +45,14 @@ async def update_order_house(
     order: int, house: House, session: AsyncSession
 ) -> House:
     house.order = order
+    session.add(house)
+    await session.commit()
+    return house
+
+
+async def calculate_house(house: House, session: AsyncSession) -> House:
+    await sleep(random.randint(10, 60))
+    house.calculated = True
     session.add(house)
     await session.commit()
     return house

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Float, Integer, String, func
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, func
 
 from src.dependencies.database import Base
 
@@ -16,6 +16,7 @@ class House(Base):
     cadastral_number = Column(String, nullable=False, unique=True)
     longitude = Column(Float, nullable=False)
     latitude = Column(Float, nullable=False)
+    calculated = Column(Boolean, nullable=False, default=False)
 
     created_at = Column(
         DateTime(timezone=False), nullable=False, default=func.now()

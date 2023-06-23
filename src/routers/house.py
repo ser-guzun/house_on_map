@@ -39,7 +39,7 @@ async def create_house(
 
 
 @router.put("/houses/{house_id}", response_model=House, tags=["house"])
-async def update_house(
+async def update_order_house(
     house_id: int,
     house: HouseUpdate,
     session: AsyncSession = Depends(get_session),
@@ -53,3 +53,20 @@ async def update_house(
         order=house.order, house=db_house, session=session
     )
     return updated_house
+
+
+@router.put(
+    "/houses/calculate/{house_id}", response_model=House, tags=["house"]
+)
+async def calculate_house(
+    house_id: int, session: AsyncSession = Depends(get_session)
+) -> House:
+    db_house = await house_service.get_house_by_id(
+        house_id=house_id, session=session
+    )
+    if db_house is None:
+        raise HTTPException(status_code=404, detail="House not found!")
+    calculated_house = await house_service.calculate_house(
+        house=db_house, session=session
+    )
+    return calculated_house
