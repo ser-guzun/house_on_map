@@ -8,20 +8,22 @@ from src.services import house_service
 router = APIRouter(dependencies=[Depends(get_session)])
 
 
-# @router.get("/cities/", response_model=list[City], tags=["city"])
-# async def read_cities(
-#     session: AsyncSession = Depends(get_session),
-# ) -> list[City]:
-#     cities = await city_service.get_cities(session=session)
-#     return [city for city in cities]
+@router.get("/houses/", response_model=list[House], tags=["house"])
+async def read_houses(
+    session: AsyncSession = Depends(get_session),
+) -> list[House]:
+    houses = await house_service.get_houses(session=session)
+    return [house for house in houses]
 
 
-# @router.get("/cities/{city_id}", response_model=City, tags=["city"])
-# async def read_city_by_id(
-#     city_id: int, session: AsyncSession = Depends(get_session)
-# ) -> City:
-#     city = await city_service.get_city_by_id(city_id=city_id, session=session)
-#     return city
+@router.get("/houses/{city_id}", response_model=House, tags=["house"])
+async def read_city_by_id(
+    house_id: int, session: AsyncSession = Depends(get_session)
+) -> House:
+    house = await house_service.get_house_by_id(
+        house_id=house_id, session=session
+    )
+    return house
 
 
 @router.post("/houses/", response_model=House, tags=["house"])
