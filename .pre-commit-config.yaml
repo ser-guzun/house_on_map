@@ -1,0 +1,23 @@
+repos:
+-   repo: https://github.com/ambv/black
+    rev: 23.3.0
+    hooks:
+    - id: black
+      args:
+          - --line-length=80
+          - --exclude="""\.git |
+                \.__pycache__|
+                \.hg|
+                \.mypy_cache|
+                \.tox|
+                \.venv|
+                _build|
+                buck-out|
+                build|
+                dist"""
+-   repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args:
+          - --line-length=80
