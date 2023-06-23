@@ -10,9 +10,18 @@ class HouseBase(BaseModel):
 
 
 class House(Base, HouseBase):
+    order: int
+
     class Config:
         orm_mode = True
 
 
 class HouseCreate(HouseBase):
     pass
+
+
+class HouseUpdate(BaseModel):
+    order: int
+
+    class Config:
+        orm_mode = True

@@ -26,13 +26,22 @@ async def get_house_by_cad_number(
     return house.scalar()
 
 
-async def create_house(house: HouseCreate, session: AsyncSession):
+async def create_house(house: HouseCreate, session: AsyncSession) -> House:
     house = House(
         order=random.randint(0, 10),
         cadastral_number=house.cadastral_number,
         longitude=house.longitude,
         latitude=house.latitude,
     )
+    session.add(house)
+    await session.commit()
+    return house
+
+
+async def update_order_house(
+    order: int, house: House, session: AsyncSession
+) -> House:
+    house.order = order
     session.add(house)
     await session.commit()
     return house
