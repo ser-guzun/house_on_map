@@ -70,3 +70,11 @@ async def calculate_house(
         house=db_house, session=session
     )
     return calculated_house
+
+
+@router.delete("/houses/{house_id}", response_model=House, tags=["house"])
+async def delete_house(
+    house_id: int, session: AsyncSession = Depends(get_session)
+) -> House:
+    house = await house_service.delete_house(house_id=house_id, session=session)
+    return house
