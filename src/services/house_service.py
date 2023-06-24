@@ -30,8 +30,6 @@ async def _get_house_by_cad_number(
 
 
 async def create_house(house: HouseCreate, session: AsyncSession) -> House:
-    # house = await session.execute(select(House).where(House.cadastral_number == house.cadastral_number))
-    # house = house.scalar()
     db_house = await _get_house_by_cad_number(
         cadastral_number=house.cadastral_number, session=session
     )

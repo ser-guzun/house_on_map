@@ -21,6 +21,8 @@ pre-commit = "^3.2.1"
 pytest = "^7.2.2"
 black = "^23.3.0"
 isort = "^5.12.0"
+httpx = "^0.24.1"
+pytest-asyncio = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -30,7 +32,7 @@ build-backend = "poetry.core.masonry.api"
 minversion = "6.0"
 addopts = "-ra -q"
 testpaths = [
-    "tests",
+    "/src/tests",
 ]
 
 [tool.black]
@@ -40,9 +42,3 @@ line_length = 80
 line_length = 80
 profile = "black"
 known_first_party = ["api", "infrastructure", "domain"]
-
-[tool.mypy]
-python_version = "3.11"
-disallow_untyped_defs = true
-ignore_missing_imports = true
-exclude = [".venv", "tests/"]
