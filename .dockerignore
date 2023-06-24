@@ -1,0 +1,4 @@
+data/
+venv/
+requirements.txt
+.pytest_cache
