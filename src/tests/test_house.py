@@ -6,6 +6,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from src.dependencies.database import get_session
 from src.main import app
 
+# Для запуска тестов без развертывания приложения в докер-контейнере
 DATABASE_URL: str = "postgresql+asyncpg://user:pass@localhost:5432/dbname"
 
 engine = create_async_engine(DATABASE_URL, echo=True)
