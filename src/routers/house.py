@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies.database import get_session
@@ -30,11 +30,6 @@ async def read_house_by_id(
 async def create_house(
     house: HouseCreate, session: AsyncSession = Depends(get_session)
 ) -> House:
-    db_house = await house_service.get_house_by_cad_number(
-        cadastral_number=house.cadastral_number, session=session
-    )
-    if db_house:
-        raise HTTPException(status_code=400, detail="House already created")
     return await house_service.create_house(house=house, session=session)
 
 
@@ -44,15 +39,9 @@ async def update_order_house(
     house: HouseUpdate,
     session: AsyncSession = Depends(get_session),
 ) -> House:
-    db_house = await house_service.get_house_by_id(
-        house_id=house_id, session=session
+    return await house_service.update_order_house(
+        order=house.order, house_id=house_id, session=session
     )
-    if db_house is None:
-        raise HTTPException(status_code=404, detail="House not found!")
-    updated_house = await house_service.update_order_house(
-        order=house.order, house=db_house, session=session
-    )
-    return updated_house
 
 
 @router.put(
@@ -61,20 +50,13 @@ async def update_order_house(
 async def calculate_house(
     house_id: int, session: AsyncSession = Depends(get_session)
 ) -> House:
-    db_house = await house_service.get_house_by_id(
+    return await house_service.calculate_house(
         house_id=house_id, session=session
     )
-    if db_house is None:
-        raise HTTPException(status_code=404, detail="House not found!")
-    calculated_house = await house_service.calculate_house(
-        house=db_house, session=session
-    )
-    return calculated_house
 
 
 @router.delete("/houses/{house_id}", response_model=House, tags=["house"])
 async def delete_house(
     house_id: int, session: AsyncSession = Depends(get_session)
 ) -> House:
-    house = await house_service.delete_house(house_id=house_id, session=session)
-    return house
+    return await house_service.delete_house(house_id=house_id, session=session)
