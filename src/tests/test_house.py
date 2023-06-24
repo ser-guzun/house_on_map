@@ -66,3 +66,19 @@ async def test_delete_house(create_house, client: AsyncClient):
     created_house = await create_house(house=house)
     response = await client.delete(f"/houses/{created_house['id']}")
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_update_order_house(house, client: AsyncClient):
+    response = await client.put(f"/houses/{house['id']}", json={"order": 5})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["cadastral_number"] == house["cadastral_number"]
+
+
+@pytest.mark.asyncio
+async def test_calculate_house(house, client: AsyncClient):
+    response = await client.put(f"/houses/calculate/{house['id']}")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["cadastral_number"] == house["cadastral_number"]
