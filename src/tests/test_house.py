@@ -30,3 +30,39 @@ async def test_read_houses(house, client: AsyncClient):
     assert response.status_code == 200
     data = response.json()
     assert data[0]["cadastral_number"] == house["cadastral_number"]
+
+
+@pytest.mark.asyncio
+async def test_read_house_by_id(house, client: AsyncClient):
+    response = await client.get(f"/houses/{house['id']}")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["cadastral_number"] == house["cadastral_number"]
+
+
+@pytest.mark.asyncio
+async def test_create_house(delete_house, client: AsyncClient):
+    house = {
+        "cadastral_number": "10000",
+        "longitude": 10.00,
+        "latitude": 10.00,
+    }
+    response = await client.post("/houses/", json=house)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["cadastral_number"] == house["cadastral_number"]
+    assert data["longitude"] == house["longitude"]
+    assert data["latitude"] == house["latitude"]
+    await delete_house(house_id=data["id"])
+
+
+@pytest.mark.asyncio
+async def test_delete_house(create_house, client: AsyncClient):
+    house = {
+        "cadastral_number": "10000",
+        "longitude": 10.00,
+        "latitude": 10.00,
+    }
+    created_house = await create_house(house=house)
+    response = await client.delete(f"/houses/{created_house['id']}")
+    assert response.status_code == 200
