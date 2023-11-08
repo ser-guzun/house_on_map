@@ -1,3 +1,4 @@
+import logging
 import random
 
 from anyio import sleep
@@ -8,6 +9,7 @@ from starlette import status
 
 from src.models.house import House
 from src.schemas.house import HouseCreate
+from src.services.tools import validate_cadastral_number
 
 
 async def get_houses(session: AsyncSession) -> list[House]:
@@ -30,13 +32,18 @@ async def _get_house_by_cad_number(
 
 
 async def create_house(house: HouseCreate, session: AsyncSession) -> House:
+    if validate_cadastral_number(house.cadastral_number) is False:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Cadastral number={house.cadastral_number} is not correct",
+        )
     db_house = await _get_house_by_cad_number(
         cadastral_number=house.cadastral_number, session=session
     )
     if db_house:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"House with cadastral_number={house.cadastral_number} already created",
+            detail=f"House with cadastral number={house.cadastral_number} already created",
         )
     house = House(
         order=random.randint(1, 10),
