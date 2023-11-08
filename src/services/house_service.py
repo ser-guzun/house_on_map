@@ -32,7 +32,7 @@ async def _get_house_by_cad_number(
 
 
 async def create_house(house: HouseCreate, session: AsyncSession) -> House:
-    if validate_cadastral_number(house.cadastral_number) is False:
+    if await validate_cadastral_number(house.cadastral_number) is False:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Cadastral number={house.cadastral_number} is not correct",

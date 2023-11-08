@@ -1,7 +1,7 @@
 import logging
 
 
-def validate_cadastral_number(number: str) -> bool:
+async def validate_cadastral_number(number: str) -> bool:
     """АА:ВВ:ССССССС:КК"""
 
     number = number.split(sep=":")
