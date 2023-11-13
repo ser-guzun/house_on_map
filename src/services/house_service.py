@@ -1,4 +1,3 @@
-import logging
 import random
 
 from anyio import sleep

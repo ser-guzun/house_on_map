@@ -45,7 +45,7 @@ async def delete_house(client: AsyncClient):
 @pytest_asyncio.fixture
 async def house(create_house, delete_house):
     house = {
-        "cadastral_number": "10000",
+        "cadastral_number": "11:11:1111111:11",
         "longitude": 10.00,
         "latitude": 10.00,
     }

@@ -44,7 +44,7 @@ async def test_read_house_by_id(house, client: AsyncClient):
 @pytest.mark.asyncio
 async def test_create_house(delete_house, client: AsyncClient):
     house = {
-        "cadastral_number": "10000",
+        "cadastral_number": "11:11:1111111:11",
         "longitude": 10.00,
         "latitude": 10.00,
     }
@@ -60,7 +60,7 @@ async def test_create_house(delete_house, client: AsyncClient):
 @pytest.mark.asyncio
 async def test_delete_house(create_house, client: AsyncClient):
     house = {
-        "cadastral_number": "10000",
+        "cadastral_number": "11:11:1111111:11",
         "longitude": 10.00,
         "latitude": 10.00,
     }
