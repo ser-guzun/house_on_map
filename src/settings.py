@@ -20,7 +20,7 @@ class Settings(BaseSettings):
             "username": "johndoe",
             "full_name": "John Doe",
             "email": "johndoe@example.com",
-            "hashed_password": "fakehashedsecret",
+            "hashed_password": "$2b$12$YIz8ckQwTrbjRu5FAR9bFOjjKA4miDkaAcQoXkvpspVFqSF7pmI2K",
             "disabled": False,
         },
         "alice": {
@@ -31,6 +31,11 @@ class Settings(BaseSettings):
             "disabled": True,
         },
     }
+    SECRET_KEY = (
+        "11d54f8d467e546e5e5bea049faa1745b8ce40dcf4cca0b8be3e14bc06cf44ac"
+    )
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 settings: Settings = Settings()
