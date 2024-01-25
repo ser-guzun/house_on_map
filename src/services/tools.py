@@ -15,8 +15,9 @@ async def validate_cadastral_number(number: str) -> bool:
             or len(number[3]) != 2
         ):
             return False
+        return True
     except ValueError as ex:
         logging.info(
             f"Elements of the cadastral number must contain only 'int'"
         )
-    return True
+        return False
