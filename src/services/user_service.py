@@ -23,15 +23,15 @@ async def _get_user_by_email(email: EmailStr, session: AsyncSession) -> User:
 
 
 async def create_user(user: UserCreate, session: AsyncSession) -> User:
-    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     db_user = await _get_user_by_email(email=user.email, session=session)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"User already created",
         )
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     hashed_password = await hash_password(
-        context=pwd_context, password=user.hashed_password
+        context=pwd_context, password=user.password
     )
     user = User(
         email=user.email,

@@ -6,7 +6,6 @@ from src.schemas.base import SchemaBase
 class UserBase(BaseModel):
     email: EmailStr
     name: str
-    hashed_password: str
 
 
 class User(SchemaBase, UserBase):
@@ -17,4 +16,4 @@ class User(SchemaBase, UserBase):
 
 
 class UserCreate(UserBase):
-    pass
+    password: str
