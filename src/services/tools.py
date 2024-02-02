@@ -1,5 +1,7 @@
 import logging
 
+from passlib.context import CryptContext
+
 
 async def validate_cadastral_number(number: str) -> bool:
     """АА:ВВ:ССССССС:КК"""
@@ -20,3 +22,13 @@ async def validate_cadastral_number(number: str) -> bool:
             f"Elements of the cadastral number must contain only 'int'"
         )
         return False
+
+
+async def hash_password(context: CryptContext, password: str) -> str:
+    return context.hash(password)
+
+
+async def validate_password(
+    context: CryptContext, password: str, hashed_password: str
+) -> bool:
+    return context.verify(password, hashed_password)

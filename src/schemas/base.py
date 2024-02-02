@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, validator
 
 
-class Base(BaseModel):
+class SchemaBase(BaseModel):
     id: int
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
