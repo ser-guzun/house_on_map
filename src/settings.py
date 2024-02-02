@@ -31,9 +31,7 @@ class Settings(BaseSettings):
             "disabled": True,
         },
     }
-    SECRET_KEY = (
-        "11d54f8d467e546e5e5bea049faa1745b8ce40dcf4cca0b8be3e14bc06cf44ac"
-    )
+    SECRET_KEY = os.getenv("SECRET_KEY")
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

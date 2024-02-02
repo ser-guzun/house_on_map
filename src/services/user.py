@@ -50,10 +50,6 @@ async def get_current_active_user(
     return current_user
 
 
-def fake_hash_password(password: str):
-    return "fakehashed" + password
-
-
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
