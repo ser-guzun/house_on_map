@@ -1,10 +1,10 @@
 from sqlalchemy import Boolean, Column, Float, Integer, String
 
 from src.dependencies.database import Base
-from src.models.base import MyBaseModel
+from src.models.base import BaseModel
 
 
-class House(Base, MyBaseModel):
+class House(Base, BaseModel):
     """Дом, объект недвижимости"""
 
     __tablename__ = "house"
