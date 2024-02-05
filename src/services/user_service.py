@@ -17,13 +17,13 @@ async def get_users(session: AsyncSession) -> Sequence[User]:
     return users.scalars().all()
 
 
-async def _get_user_by_email(email: EmailStr, session: AsyncSession) -> User:
+async def get_user_by_email(email: EmailStr, session: AsyncSession) -> User:
     user = await session.execute(select(User).where(User.email == email))
     return user.scalar()
 
 
 async def create_user(user: UserCreate, session: AsyncSession) -> User:
-    db_user = await _get_user_by_email(email=user.email, session=session)
+    db_user = await get_user_by_email(email=user.email, session=session)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -48,7 +48,7 @@ async def validate_user(
     password: str,
     session: AsyncSession,
 ) -> bool:
-    user = await _get_user_by_email(email=email, session=session)
+    user = await get_user_by_email(email=email, session=session)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
