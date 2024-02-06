@@ -86,6 +86,15 @@ async def get_user_by_token(token: UUID, session: AsyncSession) -> User:
     return user.scalar()
 
 
+async def get_token_by_user_id(user_id: int, session: AsyncSession) -> Token:
+    token = await session.execute(
+        select(Token).where(
+            and_(Token.user_id == user_id, Token.expires > datetime.now())
+        )
+    )
+    return token.scalar()
+
+
 async def authentificate_user(
     email: str,
     password: str,
@@ -105,5 +114,7 @@ async def authentificate_user(
             detail=f"Incorrect email or password",
         )
 
-    token = await create_user_token(user_id=user.id, session=session)
+    token = await get_token_by_user_id(user_id=user.id, session=session)
+    if not token:
+        token = await create_user_token(user_id=user.id, session=session)
     return token
