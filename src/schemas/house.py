@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.schemas.base import Base
+from src.schemas.base import SchemaBase
 
 
 class HouseBase(BaseModel):
@@ -9,7 +9,7 @@ class HouseBase(BaseModel):
     latitude: float
 
 
-class House(Base, HouseBase):
+class House(SchemaBase, HouseBase):
     order: int
     calculated: bool
 
