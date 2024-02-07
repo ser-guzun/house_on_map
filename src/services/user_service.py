@@ -1,18 +1,20 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Sequence
 from uuid import UUID
 
 from fastapi import HTTPException
+from jose import jwt
 from passlib.context import CryptContext
 from pydantic import EmailStr
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from src.models import Token
 from src.models.users import User
+from src.schemas.tokens import Token
 from src.schemas.users import UserCreate
 from src.services.tools import hash_password, validate_password
+from src.settings import settings
 
 
 async def get_users(session: AsyncSession) -> Sequence[User]:
@@ -95,7 +97,7 @@ async def get_token_by_user_id(user_id: int, session: AsyncSession) -> Token:
     return token.scalar()
 
 
-async def authentificate_user(
+async def authenticate_user_by_token(
     email: str,
     password: str,
     session: AsyncSession,
@@ -118,3 +120,46 @@ async def authentificate_user(
     if not token:
         token = await create_user_token(user_id=user.id, session=session)
     return token
+
+
+async def create_jwt_token(
+    data: dict,
+    expires_delta: timedelta | None = None,
+) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+    to_encode.update({"exp": expire})
+    return jwt.encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
+
+
+async def authenticate_user_by_jwt(
+    email: str,
+    password: str,
+    session: AsyncSession,
+) -> Token:
+    user = await get_user_by_email(email=email, session=session)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Incorrect email or password",
+        )
+
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    if not await validate_password(pwd_context, password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Incorrect email or password",
+        )
+    access_token = await create_jwt_token(
+        data={"sub": user.email},
+        expires_delta=timedelta(settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+    )
+    print(access_token)
+    return Token(access_token=access_token, token_type="bearer")

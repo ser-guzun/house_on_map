@@ -14,7 +14,10 @@ from src.services import user_service
 router = APIRouter(dependencies=[Depends(get_session)])
 
 
-@router.get("/users/", response_model=list[User], tags=["simple pass auth"])
+# Роут с простой парольной аутентификацией
+@router.get(
+    "/users_by_pass/", response_model=list[User], tags=["simple pass auth"]
+)
 async def read_users(
     email: EmailStr,
     password: str,
@@ -27,7 +30,24 @@ async def read_users(
     return result
 
 
-@router.post("/sign-up/", response_model=User, tags=["user"])
+# Роут с аутентификцией через обычный UUID-токен
+# @router.get(
+#     "/users_by_token/", response_model=list[User], tags=["simple token auth"]
+# )
+# async def read_token_users(
+#     current_user: User = Depends(get_current_user_for_token_auth),
+#     session: AsyncSession = Depends(get_session),
+# ) -> list[User]:
+#     if current_user.is_active is False:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+#         )
+#     users = await user_service.get_users(session=session)
+#     result = [user for user in users]
+#     return result
+
+
+@router.post("/create_user/", response_model=User, tags=["user"])
 async def create_user(
     user: UserCreate,
     session: AsyncSession = Depends(get_session),
@@ -40,30 +60,29 @@ async def read_items(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@router.post("/token")
-async def login(
+# Роут для аутентификции через обычный UUID-токен
+# @router.post("/login_by_token", tags=["simple token auth"])
+# async def login_by_token(
+#     form_data: OAuth2PasswordRequestForm = Depends(),
+#     session: AsyncSession = Depends(get_session),
+# ) -> dict:
+#     token = await user_service.authenticate_user_by_token(
+#         email=form_data.username,
+#         password=form_data.password,
+#         session=session,
+#     )
+#     return {"access_token": token.token, "token_type": "bearer"}
+
+
+@router.post("/login_by_jwt")
+async def login_by_jwt(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_session),
 ) -> dict:
-    token = await user_service.authentificate_user(
+    token = await user_service.authenticate_user_by_jwt(
         email=form_data.username,
         password=form_data.password,
         session=session,
     )
-    return {"access_token": token.token, "token_type": "bearer"}
-
-
-@router.get(
-    "/token_users/", response_model=list[User], tags=["simple token auth"]
-)
-async def read_token_users(
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_session),
-) -> list[User]:
-    if current_user.is_active is False:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
-        )
-    users = await user_service.get_users(session=session)
-    result = [user for user in users]
-    return result
+    print(token)
+    return {"access_token": token.access_token, "token_type": "bearer"}
