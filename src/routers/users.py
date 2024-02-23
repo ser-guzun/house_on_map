@@ -2,14 +2,11 @@ from typing import List
 
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies.auth import get_current_user
 from src.dependencies.database import get_session
 from src.dependencies.service import create_user_service
-from src.repositories.users import UserRepository
 from src.schemas.users import User, UserCreate
-from src.services import user_service
 from src.services.users import UserService
 
 router = APIRouter(dependencies=[Depends(get_session)])
@@ -17,7 +14,7 @@ router = APIRouter(dependencies=[Depends(get_session)])
 
 @router.get("/users/", response_model=List[User], tags=["simple pass auth"])
 async def read_users(
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     user_service: UserService = Depends(create_user_service),
 ) -> List[User]:
     return await user_service.get_all_users()
@@ -27,7 +24,7 @@ async def read_users(
 async def create_user(
     user: UserCreate,
     user_service: UserService = Depends(create_user_service),
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> User:
     return await user_service.create_user(user=user)
 
@@ -47,17 +44,9 @@ async def read_items(current_user: User = Depends(get_current_user)):
 @router.post("/login_by_jwt")
 async def login_by_jwt(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    session: AsyncSession = Depends(get_session),
+    user_service: UserService = Depends(create_user_service),
 ) -> dict:
     token = await user_service.authenticate_user_by_jwt(
-        email=form_data.username,
-        password=form_data.password,
-        session=session,
+        email=form_data.username, password=form_data.password
     )
     return {"access_token": token.access_token, "token_type": "bearer"}
-
-
-@router.get("/users", response_model=list[User], tags=["user"])
-async def get_users(session: AsyncSession = Depends(get_session)) -> List[User]:
-    repo = UserRepository(session)
-    return await repo.list_users()

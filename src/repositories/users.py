@@ -23,7 +23,5 @@ class UserRepository:
         users = await self.session.execute(select(User))
         return users.scalars().all()
 
-    async def delete_user(self, email):
-        user = await self.get_user_by_email(email=email)
-        if user:
-            await self.session.delete(user)
+    async def delete_user(self, user: User):
+        await self.session.delete(user)

@@ -33,5 +33,6 @@ async def test_create_user(client, delete_user):
 async def test_delete_user(client, create_user):
     base_url = "http://localhost:8000"
     email = "test@test.com"
+    await create_user(email=email, name="test", password="pass")
     response = await client.delete(url=f"{base_url}/users/{email}")
     assert response.status_code == 200
