@@ -8,8 +8,8 @@ async def test_get_all_users(client, user):
     response = await client.get(url="http://localhost:8000/users/")
     assert response.status_code == 200
     data = response.json()
-    assert data[0]["email"] == "test@test.com"
-    assert data[0]["name"] == "test_name"
+    assert data[-1]["email"] == "test@test.com"
+    assert data[-1]["name"] == "test_name"
 
 
 @pytest.mark.asyncio

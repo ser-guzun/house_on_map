@@ -1,12 +1,9 @@
-import asyncio
-
 import pytest
 import pytest_asyncio
 from fastapi import FastAPI
 from httpx import AsyncClient
 
 from src.main import create_app
-from src.models import User
 from src.schemas.users import UserCreate
 
 

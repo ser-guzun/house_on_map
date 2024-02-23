@@ -5,48 +5,45 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from src.dependencies.auth import get_current_user
 from src.dependencies.database import get_session
-from src.dependencies.service import create_user_service
+from src.dependencies.service import UOWDep
 from src.schemas.users import User, UserCreate
 from src.services.users import UserService
 
-router = APIRouter(dependencies=[Depends(get_session)])
+router = APIRouter(
+    dependencies=[Depends(get_session)],
+    # prefix="/users",
+    tags=["Users"],
+)
 
 
-@router.get("/users/", response_model=List[User], tags=["simple pass auth"])
+@router.get("/users/", response_model=List[User])
 async def read_users(
-    current_user: User = Depends(get_current_user),
-    user_service: UserService = Depends(create_user_service),
+    # current_user: User = Depends(get_current_user),
+    uow: UOWDep,
 ) -> List[User]:
-    return await user_service.get_all_users()
+    return await UserService().get_all_users(uow=uow)
 
 
-@router.post("/create_user/", response_model=User, tags=["user"])
+@router.post("/create_user/", response_model=User)
 async def create_user(
     user: UserCreate,
-    user_service: UserService = Depends(create_user_service),
-    current_user: User = Depends(get_current_user),
+    uow: UOWDep,
+    # current_user: User = Depends(get_current_user),
 ) -> User:
-    return await user_service.create_user(user=user)
+    return await UserService().create_user(user=user, uow=uow)
 
 
-@router.delete("/users/{email}", tags=["user"])
-async def delete_user(
-    email: str, user_service: UserService = Depends(create_user_service)
-):
-    return await user_service.delete_user(email=email)
-
-
-@router.get("/current_user/")
-async def read_items(current_user: User = Depends(get_current_user)):
-    return current_user
+@router.delete("/users/{email}")
+async def delete_user(email: str, uow: UOWDep):
+    return await UserService().delete_user(email=email, uow=uow)
 
 
 @router.post("/login_by_jwt")
 async def login_by_jwt(
+    uow: UOWDep,
     form_data: OAuth2PasswordRequestForm = Depends(),
-    user_service: UserService = Depends(create_user_service),
 ) -> dict:
-    token = await user_service.authenticate_user_by_jwt(
-        email=form_data.username, password=form_data.password
+    token = await UserService().authenticate_user_by_jwt(
+        email=form_data.username, password=form_data.password, uow=uow
     )
     return {"access_token": token.access_token, "token_type": "bearer"}
