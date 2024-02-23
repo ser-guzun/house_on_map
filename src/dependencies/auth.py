@@ -31,7 +31,7 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
     repo = UserRepository(session)
-    user = await repo.get_by_email(email=username)
+    user = await repo.get_user_by_email(email=username)
     if user is None:
         raise credentials_exception
     return user

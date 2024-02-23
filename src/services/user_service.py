@@ -16,7 +16,7 @@ from src.settings import settings
 
 async def create_user(user: UserCreate, session: AsyncSession) -> User:
     repo = UserRepository(session)
-    db_user = await repo.get_by_email(email=user.email)
+    db_user = await repo.get_user_by_email(email=user.email)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -26,7 +26,7 @@ async def create_user(user: UserCreate, session: AsyncSession) -> User:
     hashed_password = await hash_password(
         context=pwd_context, password=user.password
     )
-    user = await repo.add(
+    user = await repo.create_user(
         email=user.email, name=user.name, hash_pass=hashed_password
     )
     await session.commit()
@@ -56,7 +56,7 @@ async def authenticate_user_by_jwt(
     session: AsyncSession,
 ) -> Token:
     repo = UserRepository(session)
-    user = await repo.get_by_email(email=email)
+    user = await repo.get_user_by_email(email=email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
