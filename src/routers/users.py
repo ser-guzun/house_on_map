@@ -18,8 +18,8 @@ router = APIRouter(
 
 @router.get("/users/", response_model=List[User])
 async def read_users(
-    # current_user: User = Depends(get_current_user),
     uow: UOWDep,
+    # current_user: User = Depends(get_current_user),
 ) -> List[User]:
     return await UserService().get_all_users(uow=uow)
 
