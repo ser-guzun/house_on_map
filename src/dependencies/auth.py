@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -8,19 +6,10 @@ from starlette import status
 
 from src.dependencies.database import get_session
 from src.models import User
-from src.services.user_service import get_user_by_email, get_user_by_token
+from src.repositories.users import UserRepository
 from src.settings import settings
 
-# oauth2_scheme_by_token_auth = OAuth2PasswordBearer(tokenUrl="login_by_token")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login_by_jwt")
-
-
-# async def get_current_user_for_token_auth(
-#     token: UUID = Depends(oauth2_scheme_by_token_auth),
-#     session: AsyncSession = Depends(get_session),
-# ) -> User:
-#     user = await get_user_by_token(token=token, session=session)
-#     return user
 
 
 async def get_current_user(
@@ -41,7 +30,8 @@ async def get_current_user(
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = await get_user_by_email(email=username, session=session)
+    user_repository = UserRepository(session)
+    user = await user_repository.get_user_by_email(email=username)
     if user is None:
         raise credentials_exception
     return user
