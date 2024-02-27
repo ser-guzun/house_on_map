@@ -34,7 +34,7 @@ async def create_user(
 
 
 @router.delete("/users/{email}")
-async def delete_user(email: str, uow: UOWDep):
+async def delete_user(email: str, uow: UOWDep) -> str:
     return await UserService().delete_user(email=email, uow=uow)
 
 

@@ -10,7 +10,7 @@ from src.settings import settings
 DATABASE_URL = "postgresql+asyncpg://user:pass@localhost:5432/dbname"
 # engine = create_async_engine(settings.DATABASE_URL, echo=True)
 
-engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=False)
+engine: AsyncEngine = create_async_engine(DATABASE_URL, echo=True)
 async_session_maker = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )

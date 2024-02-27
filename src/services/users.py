@@ -4,6 +4,7 @@ from typing import List
 from fastapi import HTTPException
 from jose import jwt
 from passlib.context import CryptContext
+from sqlalchemy.exc import NoResultFound
 from starlette import status
 
 from src.models import User
@@ -16,42 +17,50 @@ from src.utils.unitofwork import UserUnitOfWork
 class UserService:
     async def get_all_users(self, uow: UserUnitOfWork) -> List[User]:
         async with uow:
-            users = await uow.user_repository.list_users()
+            users = await uow.user_repository.find_all()
             await uow.commit()
             return users
 
     async def create_user(self, user: UserCreate, uow: UserUnitOfWork) -> User:
         async with uow:
-            db_user = await uow.user_repository.get_user_by_email(
-                email=user.email
-            )
-            if db_user:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"User already created",
+            try:
+                user = await uow.user_repository.find_one(email=user.email)
+                if user:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"User already created",
+                    )
+            except NoResultFound:
+                pwd_context = CryptContext(
+                    schemes=["bcrypt"], deprecated="auto"
                 )
-            pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-            hashed_password = await self._hash_password(
-                context=pwd_context, password=user.password
-            )
-            user = await uow.user_repository.create_user(
-                email=user.email, name=user.name, hash_pass=hashed_password
-            )
-            await uow.commit()
-            return user
+                hashed_password = await self._hash_password(
+                    context=pwd_context, password=user.password
+                )
+
+                user = await uow.user_repository.add_one(
+                    {
+                        "email": user.email,
+                        "name": user.name,
+                        "hashed_password": hashed_password,
+                    }
+                )
+                await uow.commit()
+                return user
 
     @staticmethod
     async def delete_user(email: str, uow: UserUnitOfWork):
         async with uow:
-            user_db = await uow.user_repository.get_user_by_email(email=email)
-            if not user_db:
+            try:
+                await uow.user_repository.find_one(email=email)
+            except NoResultFound:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"User not found",
                 )
-            await uow.user_repository.delete_user(user=user_db)
+            await uow.user_repository.delete(email=email)
             await uow.commit()
-            return
+            return f"User was deleted"
 
     @staticmethod
     async def _create_jwt_token(
@@ -77,7 +86,7 @@ class UserService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Incorrect email or password",
             )
-            user_db = await uow.user_repository.get_user_by_email(email=email)
+            user_db = await uow.user_repository.find_one(email=email)
             if not user_db:
                 raise credentials_exception
 

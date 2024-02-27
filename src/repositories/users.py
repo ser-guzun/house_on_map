@@ -1,27 +1,34 @@
-from sqlalchemy import select
+from sqlalchemy import delete, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models import User
 
 
-class UserRepository:
+class SQLAlchemyRepository:
+    model = None
+
     def __init__(self, session: AsyncSession):
         self.session: AsyncSession = session
 
-    async def create_user(self, email, name, hash_pass):
-        user = User(email=email, name=name, hashed_password=hash_pass)
-        self.session.add(user)
-        return user
+    async def add_one(self, data: dict):
+        statement = insert(self.model).values(**data).returning(self.model)
+        result = await self.session.execute(statement)
+        return result.scalar_one()
 
-    async def get_user_by_email(self, email) -> User:
-        user = await self.session.execute(
-            select(User).where(User.email == email)
-        )
-        return user.scalar()
+    async def find_all(self):
+        statement = select(self.model)
+        result = await self.session.execute(statement)
+        return result.scalars().all()
 
-    async def list_users(self):
-        users = await self.session.execute(select(User))
-        return users.scalars().all()
+    async def find_one(self, **filter_by):
+        statement = select(self.model).filter_by(**filter_by)
+        result = await self.session.execute(statement)
+        return result.scalar_one()
 
-    async def delete_user(self, user: User):
-        await self.session.delete(user)
+    async def delete(self, **filter_by):
+        statement = delete(self.model).filter_by(**filter_by)
+        await self.session.execute(statement)
+
+
+class UserRepository(SQLAlchemyRepository):
+    model = User
