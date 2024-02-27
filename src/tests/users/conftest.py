@@ -3,16 +3,11 @@ import pytest_asyncio
 from src.models import User
 from src.schemas.users import UserCreate
 from src.services.users import UserService
-from src.utils.unitofwork import UserUnitOfWork
+from src.utils.unitofwork import UnitOfWork
 
 
 @pytest_asyncio.fixture
-async def unit_of_work() -> UserUnitOfWork:
-    return UserUnitOfWork()
-
-
-@pytest_asyncio.fixture
-async def create_user(unit_of_work: UserUnitOfWork):
+async def create_user(unit_of_work: UnitOfWork):
     async def wrapper(email: str, name: str, password: str) -> User:
         user = UserCreate(email=email, name=name, password=password)
         user_db = await UserService().create_user(user=user, uow=unit_of_work)
@@ -23,7 +18,7 @@ async def create_user(unit_of_work: UserUnitOfWork):
 
 
 @pytest_asyncio.fixture
-async def delete_user(unit_of_work: UserUnitOfWork):
+async def delete_user(unit_of_work: UnitOfWork):
     async def wrapper(email: str):
         return await UserService().delete_user(email=email, uow=unit_of_work)
 

@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 
 from src.main import create_app
+from src.utils.unitofwork import UnitOfWork
 
 
 @pytest.fixture(scope="session")
@@ -25,3 +26,8 @@ def app() -> FastAPI:
 async def client(app: FastAPI) -> AsyncClient:
     async with AsyncClient(app=app, base_url="http://localhost:8000") as client:
         yield client
+
+
+@pytest_asyncio.fixture
+async def unit_of_work() -> UnitOfWork:
+    return UnitOfWork()
