@@ -1,7 +1,7 @@
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models import User
+from src.models import House, User
 
 
 class SQLAlchemyRepository:
@@ -25,6 +25,16 @@ class SQLAlchemyRepository:
         result = await self.session.execute(statement)
         return result.scalar_one()
 
+    async def edit_one(self, id: int, data: dict):
+        statement = (
+            update(self.model)
+            .values(**data)
+            .filter_by(id=id)
+            .returning(self.model)
+        )
+        result = await self.session.execute(statement)
+        return result.scalar_one()
+
     async def delete(self, **filter_by):
         statement = delete(self.model).filter_by(**filter_by)
         await self.session.execute(statement)
@@ -32,3 +42,7 @@ class SQLAlchemyRepository:
 
 class UserRepository(SQLAlchemyRepository):
     model = User
+
+
+class HouseRepository(SQLAlchemyRepository):
+    model = House
