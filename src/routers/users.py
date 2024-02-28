@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.dependencies.auth import get_current_user
-from src.dependencies.database import get_session
 from src.dependencies.service import UOWDep
 from src.schemas.users import User, UserCreate
 from src.services.users import UserService
@@ -18,7 +17,7 @@ router = APIRouter(
 @router.get("/users/", response_model=List[User])
 async def read_users(
     uow: UOWDep,
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> List[User]:
     return await UserService().get_all_users(uow=uow)
 
@@ -27,13 +26,17 @@ async def read_users(
 async def create_user(
     user: UserCreate,
     uow: UOWDep,
-    # current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> User:
     return await UserService().create_user(user=user, uow=uow)
 
 
 @router.delete("/users/{email}")
-async def delete_user(email: str, uow: UOWDep) -> str:
+async def delete_user(
+    email: str,
+    uow: UOWDep,
+    current_user: User = Depends(get_current_user),
+) -> str:
     return await UserService().delete_user(email=email, uow=uow)
 
 
