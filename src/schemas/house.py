@@ -1,4 +1,6 @@
+from fastapi import HTTPException
 from pydantic import BaseModel, validator
+from starlette import status
 
 from src.schemas.base import SchemaBase
 from src.services.tools import validate_cadastral_number
@@ -12,7 +14,10 @@ class HouseBase(BaseModel):
     @validator("cadastral_number")
     def check_cadastral_number(cls, number: str):
         if validate_cadastral_number(number) is False:
-            raise ValueError("Cadastral number is not correct")
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Cadastral number is not correct",
+            )
         return number
 
 
