@@ -90,4 +90,4 @@ async def test_validate_cadastral_number(delete_house, client: AsyncClient):
             assert data["cadastral_number"] == house["cadastral_number"]
             await delete_house(house_id=data["id"])
         else:
-            assert response.status_code == 400
+            assert response.status_code == 422

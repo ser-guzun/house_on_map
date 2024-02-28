@@ -3,7 +3,7 @@ import logging
 from passlib.context import CryptContext
 
 
-async def validate_cadastral_number(number: str) -> bool:
+def validate_cadastral_number(number: str) -> bool:
     """АА:ВВ:ССССССС:КК"""
 
     number = number.split(sep=":")

@@ -10,7 +10,6 @@ from src.schemas.users import User, UserCreate
 from src.services.users import UserService
 
 router = APIRouter(
-    dependencies=[Depends(get_session)],
     # prefix="/users",
     tags=["Users"],
 )

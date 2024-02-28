@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies.database import get_session
 from src.dependencies.service import UOWDep
 from src.schemas.house import House, HouseCreate, HouseUpdate
-from src.services import house_service
 from src.services.houses import HouseService
 
-router = APIRouter(dependencies=[Depends(get_session)])
+router = APIRouter()
 
 
 @router.get("/houses/", response_model=list[House], tags=["house"])
