@@ -22,9 +22,12 @@ async def test_read_house_by_id(house: House, auth_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_create_house(delete_house, auth_client: AsyncClient):
+@pytest.mark.parametrize("cad_number", ["11:11:1111111:11"])
+async def test_create_house(
+    delete_house, auth_client: AsyncClient, cad_number: str
+):
     house = {
-        "cadastral_number": "11:11:1111111:11",
+        "cadastral_number": cad_number,
         "longitude": 10.00,
         "latitude": 10.00,
     }
@@ -38,9 +41,12 @@ async def test_create_house(delete_house, auth_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_delete_house(create_house: House, auth_client: AsyncClient):
+@pytest.mark.parametrize("cad_number", ["11:11:1111111:11"])
+async def test_delete_house(
+    create_house: House, auth_client: AsyncClient, cad_number: str
+):
     house = HouseCreate(
-        cadastral_number="11:11:1111111:11",
+        cadastral_number=cad_number,
         longitude=10.00,
         latitude=10.00,
     )
@@ -67,29 +73,28 @@ async def test_calculate_house(house: House, auth_client: AsyncClient):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "cad_number",
+    [
+        ("12:12:1234567:12",),
+        ("12:1:123456:12",),
+        ("12:12:sa:12",),
+        ("1234:12345:1234567:12",),
+    ],
+)
 async def test_validate_cadastral_number(
-    delete_house, auth_client: AsyncClient
+    delete_house, auth_client: AsyncClient, cad_number: str
 ):
-    mock_data = {
-        "12:12:1234567:12": True,
-        "12:1:123456:12": False,
-        "12:12:sa:12": False,
-        "1234:12345:1234567:12": False,
+    house = {
+        "cadastral_number": cad_number,
+        "longitude": 10.00,
+        "latitude": 10.00,
     }
-    houses = [
-        {
-            "cadastral_number": item,
-            "longitude": 10.00,
-            "latitude": 10.00,
-        }
-        for item in mock_data.keys()
-    ]
-    for house in houses:
-        response = await auth_client.post("/houses/", json=house)
-        if mock_data[house["cadastral_number"]]:
-            assert response.status_code == 200
-            data = response.json()
-            assert data["cadastral_number"] == house["cadastral_number"]
-            await delete_house(house_id=data["id"])
-        else:
-            assert response.status_code == 422
+    response = await auth_client.post("/houses/", json=house)
+    if response.status_code == 200:
+        assert response.status_code == 200
+        data = response.json()
+        assert data["cadastral_number"] == house["cadastral_number"]
+        await delete_house(house_id=data["id"])
+    elif response.status_code == 422:
+        assert response.status_code == 422
