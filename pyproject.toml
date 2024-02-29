@@ -29,7 +29,7 @@ isort = "^5.12.0"
 pytest-asyncio = "^0.21.0"
 pytest-cov = "^4.1.0"
 httpx = "0.26"
-httpx-auth = "0.19.0"
+pytest-env = "^1.1.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -49,3 +49,13 @@ line_length = 80
 line_length = 80
 profile = "black"
 known_first_party = ["api", "infrastructure", "domain"]
+
+[tool.pytest_env]
+POSTGRES_USER = "user"
+POSTGRES_PASSWORD = "pass"
+#POSTGRES_SERVER = "db"
+POSTGRES_SERVER = "localhost"
+POSTGRES_PORT = "5432"
+POSTGRES_DB = "dbname"
+
+SECRET_KEY = "9d7f2b24ecd99d829d0da407f53eb1b645ab44aa69fd3bcfd9415252bda935f9"
