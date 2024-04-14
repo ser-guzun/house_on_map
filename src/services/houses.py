@@ -8,7 +8,7 @@ from starlette import status
 
 from src.models import House
 from src.schemas.house import HouseCreate
-from src.services.tools import validate_cadastral_number
+from src.utils.exceptions import HouseNotFoundException
 from src.utils.unitofwork import UnitOfWork
 
 
@@ -55,10 +55,7 @@ class HouseService:
             try:
                 await uow.houses.find_one(id=house_id)
             except NoResultFound:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"House not found",
-                )
+                raise HouseNotFoundException()
             house_updated = await uow.houses.edit_one(
                 id=house_id, data={"order": order}
             )
@@ -70,10 +67,7 @@ class HouseService:
             try:
                 await uow.houses.find_one(id=house_id)
             except NoResultFound:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"House not found",
-                )
+                raise HouseNotFoundException()
             await sleep(2)
             house_calculated = await uow.houses.edit_one(
                 id=house_id, data={"calculated": True}
@@ -86,10 +80,7 @@ class HouseService:
             try:
                 await uow.houses.find_one(id=house_id)
             except NoResultFound:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"House not found",
-                )
+                raise HouseNotFoundException()
             await uow.houses.delete(id=house_id)
             await uow.commit()
-            return f"House was deleted"
+            return "House was deleted"

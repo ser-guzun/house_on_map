@@ -1,7 +1,5 @@
 import logging
 
-from passlib.context import CryptContext
-
 
 def validate_cadastral_number(number: str) -> bool:
     """АА:ВВ:ССССССС:КК"""
@@ -17,8 +15,8 @@ def validate_cadastral_number(number: str) -> bool:
             or len(number[3]) != 2
         ):
             return False
+        else:
+            return True
     except ValueError:
-        logging.info(
-            f"Elements of the cadastral number must contain only 'int'"
-        )
+        logging.info("Elements of the cadastral number must contain only 'int'")
         return False

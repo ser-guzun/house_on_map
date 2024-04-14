@@ -15,7 +15,8 @@ from src.utils.unitofwork import UnitOfWork
 
 
 class UserService:
-    async def get_all_users(self, uow: UnitOfWork) -> List[User]:
+    @staticmethod
+    async def get_all_users(uow: UnitOfWork) -> List[User]:
         async with uow:
             users = await uow.users.find_all()
             await uow.commit()
@@ -28,7 +29,7 @@ class UserService:
                 if user_db:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"User already created",
+                        detail="User already created",
                     )
             except NoResultFound:
                 pwd_context = CryptContext(
@@ -56,11 +57,11 @@ class UserService:
             except NoResultFound:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"User not found",
+                    detail="User not found",
                 )
             await uow.users.delete(email=email)
             await uow.commit()
-            return f"User was deleted"
+            return "User was deleted"
 
     @staticmethod
     async def _create_jwt_token(

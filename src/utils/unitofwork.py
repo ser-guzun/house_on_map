@@ -20,7 +20,7 @@ class IUnitOfWork(ABC):
         pass
 
     @abstractmethod
-    async def __aexit__(self):
+    async def __aexit__(self, *args):
         pass
 
     @abstractmethod
