@@ -2,10 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
-from src.dependencies.mysql_db import (
-    async_session_maker as mysql_async_session_maker,
-)
+from src.dependencies.mysql_db import session_maker as mysql_session_maker
 from src.dependencies.pg_db import async_session_maker as pg_async_session_maker
 from src.repositories.mysql.repositories import StreamsTableRepository
 from src.repositories.repositories import (
@@ -65,20 +64,20 @@ class PgUnitOfWork(IUnitOfWork):
 
 class MySqlUnitOfWork:
     def __init__(self):
-        self.session_factory = mysql_async_session_maker
+        self.session_factory = mysql_session_maker
 
-    async def __aenter__(self):
-        self.session: AsyncSession = self.session_factory()
+    def __enter__(self):
+        self.session: Session = self.session_factory()
         self.streams: StreamsTableRepository = StreamsTableRepository(
             session=self.session
         )
 
-    async def __aexit__(self, *args):
-        await self.rollback()
-        await self.session.close()
+    def __exit__(self, *args):
+        self.rollback()
+        self.session.close()
 
-    async def commit(self):
-        await self.session.commit()
+    def commit(self):
+        self.session.commit()
 
-    async def rollback(self):
-        await self.session.rollback()
+    def rollback(self):
+        self.session.rollback()

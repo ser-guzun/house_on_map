@@ -21,9 +21,9 @@ class Settings(BaseSettings):
     MYSQL_PASSWORD: str = os.getenv("MYSQL_PASSWORD")
     MYSQL_SERVER: str = os.getenv("MYSQL_SERVER")
     MYSQL_PORT: str = os.getenv("MYSQL_PORT")
-    MYSQL_DB: str = os.getenv("MYSQL_DB")
+    MYSQL_DATABASE: str = os.getenv("MYSQL_DATABASE")
     MYSQL_ECHO_DB: bool = os.getenv("MYSQL_ECHO_DB")
-    MYSQL_DATABASE_URL: str = f"mysql+asyncmy://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_SERVER}:{MYSQL_PORT}/{MYSQL_DB}"
+    MYSQL_DATABASE_URL: str = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_SERVER}:{MYSQL_PORT}/{MYSQL_DATABASE}"
 
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM: str = "HS256"
