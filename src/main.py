@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.dependencies.database import get_session
+from src.dependencies.pg_db import get_session
 from src.routers import house, users
 
 

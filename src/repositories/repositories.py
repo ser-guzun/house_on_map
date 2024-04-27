@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.models import House, User
 
 
-class SQLAlchemyRepository:
+class SQLAlchemyModelRepository:
     model = None
 
     def __init__(self, session: AsyncSession):
@@ -40,9 +40,9 @@ class SQLAlchemyRepository:
         await self.session.execute(statement)
 
 
-class UserRepository(SQLAlchemyRepository):
+class UserModelRepository(SQLAlchemyModelRepository):
     model = User
 
 
-class HouseRepository(SQLAlchemyRepository):
+class HouseModelRepository(SQLAlchemyModelRepository):
     model = House
