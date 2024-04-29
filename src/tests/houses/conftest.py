@@ -1,4 +1,3 @@
-import pytest
 import pytest_asyncio
 
 from src.models import House
@@ -32,7 +31,7 @@ async def delete_house(pg_unit_of_work: PgUnitOfWork):
 @pytest_asyncio.fixture
 async def house(create_house, delete_house):
     house = HouseCreate(
-        cadastral_number="11:11:1111111:11",
+        cadastral_number="12:12:1234567:12",
         longitude=10.00,
         latitude=10.00,
     )

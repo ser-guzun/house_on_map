@@ -22,7 +22,7 @@ async def test_read_house_by_id(house: House, auth_client: AsyncClient):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("cad_number", ["11:11:1111111:11"])
+@pytest.mark.parametrize("cad_number", ["12:12:1234567:12"])
 async def test_create_house(
     delete_house, auth_client: AsyncClient, cad_number: str
 ):
@@ -41,7 +41,7 @@ async def test_create_house(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("cad_number", ["11:11:1111111:11"])
+@pytest.mark.parametrize("cad_number", ["12:12:1234567:12"])
 async def test_delete_house(
     create_house: House, auth_client: AsyncClient, cad_number: str
 ):
