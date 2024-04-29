@@ -12,7 +12,7 @@ from src.settings import settings
 engine: AsyncEngine = create_async_engine(
     settings.PG_DATABASE_URL, echo=settings.PG_ECHO_DB
 )
-async_session_maker = sessionmaker(
+session_maker = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
 
@@ -20,5 +20,5 @@ Base = declarative_base()
 
 
 async def get_session() -> AsyncGenerator:
-    async with async_session_maker() as session:
+    async with session_maker() as session:
         yield session
