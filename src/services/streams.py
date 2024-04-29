@@ -7,8 +7,8 @@ from src.utils.unitofwork import MySqlUnitOfWork
 
 class StreamService:
     @staticmethod
-    def get_all_streams(uow: MySqlUnitOfWork) -> Sequence[Row]:
-        with uow:
-            streams = uow.streams.find_all()
-            uow.commit()
+    async def get_all_streams(uow: MySqlUnitOfWork) -> Sequence[Row]:
+        async with uow:
+            streams = await uow.streams.find_all()
+            await uow.commit()
             return streams

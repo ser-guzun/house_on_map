@@ -1,19 +1,17 @@
 """Репозитории для работы с таблицами в MySQL-БД"""
 from sqlalchemy import Table, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.dependencies.mysql_db import get_table
+from src.repositories.base import SQLAlchemyTableRepository
 
 
-class StreamsTableRepository:
+class StreamsTableRepository(SQLAlchemyTableRepository):
     table_name = "streams"
 
-    def __init__(self, session: Session):
-        self.session: Session = session
-        self.table: Table = get_table(self.table_name)
+    def __init__(self, session: AsyncSession):
+        super().__init__(session, self.table_name)
 
-    def find_all(self):
+    async def find_all(self):
         statement = select(self.table)
-        result = self.session.execute(statement)
-        res = result.all()
-        return res
+        raw_data = await self.session.execute(statement)
+        return raw_data.all()

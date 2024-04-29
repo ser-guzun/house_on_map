@@ -66,18 +66,18 @@ class MySqlUnitOfWork:
     def __init__(self):
         self.session_factory = mysql_session_maker
 
-    def __enter__(self):
-        self.session: Session = self.session_factory()
+    async def __aenter__(self):
+        self.session: AsyncSession = self.session_factory()
         self.streams: StreamsTableRepository = StreamsTableRepository(
             session=self.session
         )
 
-    def __exit__(self, *args):
-        self.rollback()
-        self.session.close()
+    async def __aexit__(self, *args):
+        await self.rollback()
+        await self.session.close()
 
-    def commit(self):
-        self.session.commit()
+    async def commit(self):
+        await self.session.commit()
 
-    def rollback(self):
-        self.session.rollback()
+    async def rollback(self):
+        await self.session.rollback()

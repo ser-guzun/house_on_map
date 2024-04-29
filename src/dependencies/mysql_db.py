@@ -1,40 +1,49 @@
-from typing import AsyncGenerator, Generator
+from typing import AsyncGenerator
 
 from sqlalchemy import Engine, MetaData, Table, create_engine
-from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    create_async_engine,
+)
+from sqlalchemy.orm import sessionmaker
 
 from src.settings import settings
 
-# синхронный движок для синхронных операции metadata.reflect(bind=engine)
+# асинхронный движок для асинхронных операций
+async_engine: AsyncEngine = create_async_engine(
+    settings.MYSQL_ASYNC_DATABASE_URL, echo=settings.MYSQL_ECHO_DB
+)
+
+# синхронный движок для синхронной операции metadata.reflect(bind=engine),
+# которая не поддерживается в AsyncEngine
 # подробнее о проблеме читай здесь: https://sqlalche.me/e/20/xd3s
-engine: Engine = create_engine(
-    settings.MYSQL_DATABASE_URL, echo=settings.MYSQL_ECHO_DB
+sync_engine: Engine = create_engine(
+    settings.MYSQL_SYNC_DATABASE_URL, echo=settings.MYSQL_ECHO_DB
 )
 
 session_maker = sessionmaker(
-    bind=engine, class_=Session, expire_on_commit=False
+    bind=async_engine, class_=AsyncSession, expire_on_commit=False
 )
 
-Base = declarative_base()
 
-
-def get_session() -> Generator:
+async def get_session() -> AsyncGenerator:
     with session_maker() as session:
-        return session
+        yield session
 
 
-def reflect_metadata():
+def reflect_metadata() -> MetaData:
     metadata = MetaData()
-    metadata.reflect(bind=engine)
+    metadata.reflect(bind=sync_engine)
     return metadata
 
 
+# @make_async_func
 def get_table(table_name: str) -> Table:
     metadata = reflect_metadata()
-    table = Table(
+    return Table(
         table_name,
         metadata,
         autoload=True,
-        autoload_with=engine,
+        autoload_with=sync_engine,
     )
-    return table
