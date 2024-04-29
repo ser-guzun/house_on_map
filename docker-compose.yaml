@@ -34,3 +34,16 @@ services:
       - ./data/db:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  mysql_db:
+    image: mysql:8
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: stage
+      MYSQL_USER: example
+      MYSQL_PASSWORD: secret2
+    volumes:
+      - ./data_mysql:/var/lib/mysql/

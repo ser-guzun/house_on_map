@@ -1,6 +1,6 @@
 from sqlalchemy import Boolean, Column, Float, Integer, String
 
-from src.dependencies.database import Base
+from src.dependencies.pg_db import Base
 from src.models.base import BaseModel
 
 

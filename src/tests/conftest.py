@@ -10,7 +10,7 @@ from src.models import User
 from src.schemas.tokens import Token
 from src.schemas.users import UserCreate
 from src.services.users import UserService
-from src.utils.unitofwork import UnitOfWork
+from src.utils.unitofwork import PgUnitOfWork
 
 
 @pytest.fixture(scope="session")
@@ -32,15 +32,17 @@ async def client(app: FastAPI) -> AsyncClient:
 
 
 @pytest_asyncio.fixture
-async def unit_of_work() -> UnitOfWork:
-    return UnitOfWork()
+async def pg_unit_of_work() -> PgUnitOfWork:
+    return PgUnitOfWork()
 
 
 @pytest_asyncio.fixture
-async def create_user(unit_of_work: UnitOfWork):
+async def create_user(pg_unit_of_work: PgUnitOfWork):
     async def wrapper(email: str, name: str, password: str) -> User:
         user = UserCreate(email=email, name=name, password=password)
-        user_db = await UserService().create_user(user=user, uow=unit_of_work)
+        user_db = await UserService().create_user(
+            user=user, uow=pg_unit_of_work
+        )
         assert user_db.email == email
         return user_db
 
@@ -48,9 +50,9 @@ async def create_user(unit_of_work: UnitOfWork):
 
 
 @pytest_asyncio.fixture
-async def delete_user(unit_of_work: UnitOfWork):
+async def delete_user(pg_unit_of_work: PgUnitOfWork):
     async def wrapper(email: str):
-        return await UserService().delete_user(email=email, uow=unit_of_work)
+        return await UserService().delete_user(email=email, uow=pg_unit_of_work)
 
     return wrapper
 
@@ -67,10 +69,10 @@ async def user(create_user, delete_user):
 
 
 @pytest_asyncio.fixture
-async def auth_client(app: FastAPI, user: User, unit_of_work: UnitOfWork):
+async def auth_client(app: FastAPI, user: User, pg_unit_of_work: PgUnitOfWork):
     password = "test_pass"
     token: Token = await UserService().authenticate_user_by_jwt(
-        email=user.email, password=password, uow=unit_of_work
+        email=user.email, password=password, uow=pg_unit_of_work
     )
     headers = {"Authorization": f"Bearer {token.access_token}"}
 

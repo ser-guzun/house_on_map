@@ -2,14 +2,20 @@ from abc import ABC, abstractmethod
 from typing import Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
-from src.dependencies.database import async_session_maker
-from src.repositories.repositories import HouseRepository, UserRepository
+from src.dependencies.mysql_db import session_maker as mysql_session_maker
+from src.dependencies.pg_db import async_session_maker as pg_async_session_maker
+from src.repositories.mysql.repositories import StreamsTableRepository
+from src.repositories.repositories import (
+    HouseModelRepository,
+    UserModelRepository,
+)
 
 
 class IUnitOfWork(ABC):
-    users: Type[UserRepository]
-    houses: Type[HouseRepository]
+    users: Type[UserModelRepository]
+    houses: Type[HouseModelRepository]
 
     @abstractmethod
     def __init__(self):
@@ -32,14 +38,39 @@ class IUnitOfWork(ABC):
         pass
 
 
-class UnitOfWork:
+class PgUnitOfWork(IUnitOfWork):
     def __init__(self):
-        self.session_factory = async_session_maker
+        self.session_factory = pg_async_session_maker
 
     async def __aenter__(self):
         self.session: AsyncSession = self.session_factory()
-        self.users: UserRepository = UserRepository(session=self.session)
-        self.houses: HouseRepository = HouseRepository(session=self.session)
+        self.users: UserModelRepository = UserModelRepository(
+            session=self.session
+        )
+        self.houses: HouseModelRepository = HouseModelRepository(
+            session=self.session
+        )
+
+    async def __aexit__(self, *args):
+        await self.rollback()
+        await self.session.close()
+
+    async def commit(self):
+        await self.session.commit()
+
+    async def rollback(self):
+        await self.session.rollback()
+
+
+class MySqlUnitOfWork:
+    def __init__(self):
+        self.session_factory = mysql_session_maker
+
+    async def __aenter__(self):
+        self.session: AsyncSession = self.session_factory()
+        self.streams: StreamsTableRepository = StreamsTableRepository(
+            session=self.session
+        )
 
     async def __aexit__(self, *args):
         await self.rollback()

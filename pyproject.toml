@@ -20,6 +20,8 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 pyjwt = "^2.8.0"
 python-multipart = "^0.0.7"
+asyncmy = "^0.2.9"
+pymysql = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.2.1"
@@ -51,11 +53,21 @@ profile = "black"
 known_first_party = ["api", "infrastructure", "domain"]
 
 [tool.pytest_env]
-POSTGRES_USER = "user"
-POSTGRES_PASSWORD = "pass"
-#POSTGRES_SERVER = "db"
-POSTGRES_SERVER = "localhost"
-POSTGRES_PORT = "5432"
-POSTGRES_DB = "dbname"
+PG_USER = "user"
+PG_PASSWORD = "pass"
+#PG_SERVER = "db_pg"
+PG_SERVER = "localhost"
+PG_PORT = "5432"
+PG_DB = "dbname"
+PG_ECHO_DB = "True"
+
+MYSQL_USER = "example"
+MYSQL_PASSWORD = "secret2"
+MYSQL_ROOT_PASSWORD = "secret"
+#MYSQL_SERVER = "mysql_db"
+MYSQL_SERVER = "localhost"
+MYSQL_PORT = "3306"
+MYSQL_DATABASE = "stage"
+MYSQL_ECHO_DB = "True"
 
 SECRET_KEY = "9d7f2b24ecd99d829d0da407f53eb1b645ab44aa69fd3bcfd9415252bda935f9"

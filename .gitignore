@@ -156,5 +156,6 @@ cython_debug/
 
 # Docker-compose data
 data
+data_mysql
 
 .DS_Store

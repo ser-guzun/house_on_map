@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, String
 from sqlalchemy.orm import relationship
 
-from src.dependencies.database import Base
+from src.dependencies.pg_db import Base
 from src.models.base import BaseModel
 
 

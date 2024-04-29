@@ -9,23 +9,25 @@ from starlette import status
 from src.models import House
 from src.schemas.house import HouseCreate
 from src.utils.exceptions import HouseNotFoundException
-from src.utils.unitofwork import UnitOfWork
+from src.utils.unitofwork import PgUnitOfWork
 
 
 class HouseService:
-    async def get_all_houses(self, uow: UnitOfWork) -> List[House]:
+    async def get_all_houses(self, uow: PgUnitOfWork) -> List[House]:
         async with uow:
             houses = await uow.houses.find_all()
             await uow.commit()
             return houses
 
-    async def get_houses_by_id(self, house_id: int, uow: UnitOfWork) -> House:
+    async def get_houses_by_id(self, house_id: int, uow: PgUnitOfWork) -> House:
         async with uow:
             house = await uow.houses.find_one(id=house_id)
             await uow.commit()
             return house
 
-    async def create_house(self, house: HouseCreate, uow: UnitOfWork) -> House:
+    async def create_house(
+        self, house: HouseCreate, uow: PgUnitOfWork
+    ) -> House:
         async with uow:
             try:
                 house_db = await uow.houses.find_one(
@@ -49,7 +51,7 @@ class HouseService:
                 return house
 
     async def update_order_house(
-        self, order: int, house_id: int, uow: UnitOfWork
+        self, order: int, house_id: int, uow: PgUnitOfWork
     ) -> House:
         async with uow:
             try:
@@ -62,7 +64,7 @@ class HouseService:
             await uow.commit()
             return house_updated
 
-    async def calculate_house(self, house_id: int, uow: UnitOfWork) -> House:
+    async def calculate_house(self, house_id: int, uow: PgUnitOfWork) -> House:
         async with uow:
             try:
                 await uow.houses.find_one(id=house_id)
@@ -75,7 +77,7 @@ class HouseService:
             await uow.commit()
             return house_calculated
 
-    async def delete_house(self, house_id: int, uow: UnitOfWork) -> str:
+    async def delete_house(self, house_id: int, uow: PgUnitOfWork) -> str:
         async with uow:
             try:
                 await uow.houses.find_one(id=house_id)

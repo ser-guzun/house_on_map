@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config, pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from src.dependencies.database import Base
+from src.dependencies.pg_db import Base
 from src.models import *  # import House, User
 from src.settings import settings
 

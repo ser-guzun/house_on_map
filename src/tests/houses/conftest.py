@@ -4,14 +4,14 @@ import pytest_asyncio
 from src.models import House
 from src.schemas.house import HouseCreate
 from src.services.houses import HouseService
-from src.utils.unitofwork import UnitOfWork
+from src.utils.unitofwork import PgUnitOfWork
 
 
 @pytest_asyncio.fixture
-async def create_house(unit_of_work: UnitOfWork):
+async def create_house(pg_unit_of_work: PgUnitOfWork):
     async def wrapper(house: HouseCreate) -> House:
         house_db = await HouseService().create_house(
-            house=house, uow=unit_of_work
+            house=house, uow=pg_unit_of_work
         )
         assert house_db.cadastral_number == house.cadastral_number
         return house_db
@@ -20,10 +20,10 @@ async def create_house(unit_of_work: UnitOfWork):
 
 
 @pytest_asyncio.fixture
-async def delete_house(unit_of_work: UnitOfWork):
+async def delete_house(pg_unit_of_work: PgUnitOfWork):
     async def wrapper(house_id: int):
         return await HouseService().delete_house(
-            house_id=house_id, uow=unit_of_work
+            house_id=house_id, uow=pg_unit_of_work
         )
 
     return wrapper

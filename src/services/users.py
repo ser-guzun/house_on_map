@@ -11,18 +11,18 @@ from src.models import User
 from src.schemas.tokens import Token
 from src.schemas.users import UserCreate
 from src.settings import settings
-from src.utils.unitofwork import UnitOfWork
+from src.utils.unitofwork import PgUnitOfWork
 
 
 class UserService:
     @staticmethod
-    async def get_all_users(uow: UnitOfWork) -> List[User]:
+    async def get_all_users(uow: PgUnitOfWork) -> List[User]:
         async with uow:
             users = await uow.users.find_all()
             await uow.commit()
             return users
 
-    async def create_user(self, user: UserCreate, uow: UnitOfWork) -> User:
+    async def create_user(self, user: UserCreate, uow: PgUnitOfWork) -> User:
         async with uow:
             try:
                 user_db = await uow.users.find_one(email=user.email)
@@ -50,7 +50,7 @@ class UserService:
                 return user
 
     @staticmethod
-    async def delete_user(email: str, uow: UnitOfWork):
+    async def delete_user(email: str, uow: PgUnitOfWork):
         async with uow:
             try:
                 await uow.users.find_one(email=email)
@@ -80,7 +80,7 @@ class UserService:
         )
 
     async def authenticate_user_by_jwt(
-        self, email: str, password: str, uow: UnitOfWork
+        self, email: str, password: str, uow: PgUnitOfWork
     ) -> Token:
         async with uow:
             credentials_exception = HTTPException(
