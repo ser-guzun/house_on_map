@@ -5,6 +5,8 @@ from src.dependencies.mysql_db import get_table
 
 
 class SQLAlchemyTableRepository:
+    """репозиторий для работы с таблицами, для кот. нет model-представлений"""
+
     table_name = None
 
     def __init__(self, session: AsyncSession, table_name: str):
@@ -15,11 +17,6 @@ class SQLAlchemyTableRepository:
         statement = select(self.table)
         result = await self.session.execute(statement)
         return result.all()
-
-    async def find_one(self, **filter_by):
-        statement = select(self.table).filter_by(**filter_by)
-        result = await self.session.execute(statement)
-        return result.scalar_one()
 
 
 class SQLAlchemyModelRepository:
