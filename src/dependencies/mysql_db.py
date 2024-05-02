@@ -38,7 +38,6 @@ def reflect_metadata() -> MetaData:
     return metadata
 
 
-# @make_async_func
 def get_table(table_name: str) -> Table:
     metadata = reflect_metadata()
     return Table(

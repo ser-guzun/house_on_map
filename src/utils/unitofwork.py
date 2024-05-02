@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from types import TracebackType
+from typing import Optional, Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -67,8 +69,16 @@ class MySqlUnitOfWork(IUnitOfWork):
             session=self.session
         )
 
-    async def __aexit__(self, *args):
-        await self.rollback()
+    async def __aexit__(
+            self,
+            exc_type: Optional[Type[BaseException]] = None,
+            exc_value: Optional[BaseException] = None,
+            traceback: Optional[TracebackType] = None,
+    ) -> None:
+        if exc_value:
+            await self.rollback()
+        else:
+            await self.commit()
         await self.session.close()
 
     async def commit(self):
