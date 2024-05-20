@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.dependencies.pg_db import get_session
 from src.routers import house, users
 
+# Это новая ветка. Буду её мердижить, а потом ревертить.
+
 
 def create_app() -> FastAPI:
     app = FastAPI(dependencies=[Depends(get_session)])
