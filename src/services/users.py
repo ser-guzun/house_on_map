@@ -15,17 +15,19 @@ from src.utils.unitofwork import PgUnitOfWork
 
 
 class UserService:
-    @staticmethod
-    async def get_all_users(uow: PgUnitOfWork) -> List[User]:
-        async with uow:
-            users = await uow.users.find_all()
-            await uow.commit()
+    def __init__(self, uow: PgUnitOfWork):
+        self.uow = uow
+
+    async def get_all_users(self) -> List[User]:
+        async with self.uow:
+            users = await self.uow.users.find_all()
+            await self.uow.commit()
             return users
 
-    async def create_user(self, user: UserCreate, uow: PgUnitOfWork) -> User:
-        async with uow:
+    async def create_user(self, user: UserCreate) -> User:
+        async with self.uow:
             try:
-                user_db = await uow.users.find_one(email=user.email)
+                user_db = await self.uow.users.find_one(email=user.email)
                 if user_db:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
@@ -39,28 +41,27 @@ class UserService:
                     context=pwd_context, password=user.password
                 )
 
-                user = await uow.users.add_one(
+                user = await self.uow.users.add_one(
                     {
                         "email": user.email,
                         "name": user.name,
                         "hashed_password": hashed_password,
                     }
                 )
-                await uow.commit()
+                await self.uow.commit()
                 return user
 
-    @staticmethod
-    async def delete_user(email: str, uow: PgUnitOfWork):
-        async with uow:
+    async def delete_user(self, email: str):
+        async with self.uow:
             try:
-                await uow.users.find_one(email=email)
+                await self.uow.users.find_one(email=email)
             except NoResultFound:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="User not found",
                 )
-            await uow.users.delete(email=email)
-            await uow.commit()
+            await self.uow.users.delete(email=email)
+            await self.uow.commit()
             return "User was deleted"
 
     @staticmethod
@@ -80,14 +81,14 @@ class UserService:
         )
 
     async def authenticate_user_by_jwt(
-        self, email: str, password: str, uow: PgUnitOfWork
+        self, email: str, password: str
     ) -> Token:
-        async with uow:
+        async with self.uow:
             credentials_exception = HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Incorrect email or password",
             )
-            user_db = await uow.users.find_one(email=email)
+            user_db = await self.uow.users.find_one(email=email)
             if not user_db:
                 raise credentials_exception
 

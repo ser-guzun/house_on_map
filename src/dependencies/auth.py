@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from starlette import status
 
-from src.dependencies.service import UOWDep
+from src.dependencies.uow import UOWDep
 from src.models import User
 from src.settings import settings
 

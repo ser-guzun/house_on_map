@@ -5,7 +5,6 @@ from typing import Optional, Type
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies.mysql_db import session_maker as mysql_session_maker
-from src.dependencies.pg_db import session_maker as pg_session_maker
 from src.repositories.mysql_repositories import StreamsTableRepository
 from src.repositories.pg_repositories import (
     HouseModelRepository,
@@ -36,8 +35,8 @@ class IUnitOfWork(ABC):
 
 
 class PgUnitOfWork(IUnitOfWork):
-    def __init__(self):
-        self.session_factory = pg_session_maker
+    def __init__(self, session_maker):
+        self.session_factory = session_maker
 
     async def __aenter__(self):
         self.session: AsyncSession = self.session_factory()
@@ -47,6 +46,7 @@ class PgUnitOfWork(IUnitOfWork):
         self.houses: HouseModelRepository = HouseModelRepository(
             session=self.session
         )
+        return self
 
     async def __aexit__(self, *args):
         await self.rollback()

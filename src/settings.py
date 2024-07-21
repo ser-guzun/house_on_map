@@ -8,15 +8,26 @@ env_path = Path(".") / ".env"
 load_dotenv(dotenv_path=env_path)
 
 
-class Settings(BaseSettings):
-    PG_USER: str = os.getenv("PG_USER")
-    PG_PASSWORD: str = os.getenv("PG_PASSWORD")
-    PG_SERVER: str = os.getenv("PG_SERVER")
-    PG_PORT: str = os.getenv("PG_PORT")
-    PG_DB: str = os.getenv("PG_DB")
-    PG_ECHO_DB: bool = os.getenv("PG_ECHO_DB")
+class AlembicConfig(BaseSettings):
+    ALEMBIC_USER: str = "user"
+    ALEMBIC_PASSWORD: str = "pass"
+    ALEMBIC_SERVER: str = "db"
+    ALEMBIC_PORT: str = 5432
+    ALEMBIC_DB: str = "dbname"
+    ALEMBIC_URL: str = f"postgresql+asyncpg://{ALEMBIC_USER}:{ALEMBIC_PASSWORD}@{ALEMBIC_SERVER}:{ALEMBIC_PORT}/{ALEMBIC_DB}"
+
+
+class PgCongig(BaseSettings):
+    PG_USER: str = "user"
+    PG_PASSWORD: str = "pass"
+    PG_SERVER: str = "db"
+    PG_PORT: str = 5432
+    PG_DB: str = "dbname"
+    PG_ECHO_DB: bool = True
     PG_DATABASE_URL: str = f"postgresql+asyncpg://{PG_USER}:{PG_PASSWORD}@{PG_SERVER}:{PG_PORT}/{PG_DB}"
 
+
+class Settings(BaseSettings):
     MYSQL_USER: str = os.getenv("MYSQL_USER")
     MYSQL_PASSWORD: str = os.getenv("MYSQL_PASSWORD")
     MYSQL_SERVER: str = os.getenv("MYSQL_SERVER")
@@ -29,6 +40,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1
+
+    alembic_config: AlembicConfig = AlembicConfig()
+    pg_config: PgCongig = PgCongig()
 
 
 settings: Settings = Settings()

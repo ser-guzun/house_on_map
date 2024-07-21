@@ -13,24 +13,25 @@ from src.utils.unitofwork import PgUnitOfWork
 
 
 class HouseService:
-    async def get_all_houses(self, uow: PgUnitOfWork) -> List[House]:
-        async with uow:
-            houses = await uow.houses.find_all()
-            await uow.commit()
+    def __init__(self, uow: PgUnitOfWork):
+        self.uow = uow
+
+    async def get_all_houses(self) -> List[House]:
+        async with self.uow:
+            houses = await self.uow.houses.find_all()
+            await self.uow.commit()
             return houses
 
-    async def get_houses_by_id(self, house_id: int, uow: PgUnitOfWork) -> House:
-        async with uow:
-            house = await uow.houses.find_one(id=house_id)
-            await uow.commit()
+    async def get_houses_by_id(self, house_id: int) -> House:
+        async with self.uow:
+            house = await self.uow.houses.find_one(id=house_id)
+            await self.uow.commit()
             return house
 
-    async def create_house(
-        self, house: HouseCreate, uow: PgUnitOfWork
-    ) -> House:
-        async with uow:
+    async def create_house(self, house: HouseCreate) -> House:
+        async with self.uow:
             try:
-                house_db = await uow.houses.find_one(
+                house_db = await self.uow.houses.find_one(
                     cadastral_number=house.cadastral_number
                 )
                 if house_db:
@@ -39,7 +40,7 @@ class HouseService:
                         detail=f"House with cadastral number={house.cadastral_number} already created",
                     )
             except NoResultFound:
-                house = await uow.houses.add_one(
+                house = await self.uow.houses.add_one(
                     {
                         "order": random.randint(1, 10),
                         "cadastral_number": house.cadastral_number,
@@ -47,42 +48,40 @@ class HouseService:
                         "latitude": house.latitude,
                     }
                 )
-                await uow.commit()
+                await self.uow.commit()
                 return house
 
-    async def update_order_house(
-        self, order: int, house_id: int, uow: PgUnitOfWork
-    ) -> House:
-        async with uow:
+    async def update_order_house(self, order: int, house_id: int) -> House:
+        async with self.uow:
             try:
-                await uow.houses.find_one(id=house_id)
+                await self.uow.houses.find_one(id=house_id)
             except NoResultFound:
                 raise HouseNotFoundException()
-            house_updated = await uow.houses.edit_one(
+            house_updated = await self.uow.houses.edit_one(
                 id=house_id, data={"order": order}
             )
-            await uow.commit()
+            await self.uow.commit()
             return house_updated
 
-    async def calculate_house(self, house_id: int, uow: PgUnitOfWork) -> House:
-        async with uow:
+    async def calculate_house(self, house_id: int) -> House:
+        async with self.uow:
             try:
-                await uow.houses.find_one(id=house_id)
+                await self.uow.houses.find_one(id=house_id)
             except NoResultFound:
                 raise HouseNotFoundException()
             await sleep(2)
-            house_calculated = await uow.houses.edit_one(
+            house_calculated = await self.uow.houses.edit_one(
                 id=house_id, data={"calculated": True}
             )
-            await uow.commit()
+            await self.uow.commit()
             return house_calculated
 
-    async def delete_house(self, house_id: int, uow: PgUnitOfWork) -> str:
-        async with uow:
+    async def delete_house(self, house_id: int) -> str:
+        async with self.uow:
             try:
-                await uow.houses.find_one(id=house_id)
+                await self.uow.houses.find_one(id=house_id)
             except NoResultFound:
                 raise HouseNotFoundException()
-            await uow.houses.delete(id=house_id)
-            await uow.commit()
+            await self.uow.houses.delete(id=house_id)
+            await self.uow.commit()
             return "House was deleted"

@@ -10,7 +10,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from src.settings import settings
 
 engine: AsyncEngine = create_async_engine(
-    settings.PG_DATABASE_URL, echo=settings.PG_ECHO_DB
+    settings.pg_config.PG_DATABASE_URL, echo=settings.pg_config.PG_ECHO_DB
 )
 session_maker = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
